@@ -250,6 +250,19 @@ For each channel, surface:
 - Announcements that affect the user's work (deploys, freezes, incidents, etc.)
 - Skip social/celebration posts unless the user was called out
 
+**Write the channel summary to the daily note** under a `## Slack` section — do not print it in the terminal output. Format:
+
+```
+## Slack
+
+### #channel-name
+- Summary of relevant activity or @mention
+- [thread link]
+
+### DMs
+- @person — summary of what needs a reply
+```
+
 For any **open technical discussion** where the user's input is needed (architecture questions, design decisions, open-ended problems): spin off a subagent to research the question and draft a response. The subagent should:
 1. Read the full Slack thread for context
 2. Look at any referenced PRs, Jira tickets, or code
@@ -262,7 +275,7 @@ For any **open technical discussion** where the user's input is needed (architec
 
 **Verify before posting** — short list of things to double-check before committing to the opinion.
 
-Add this to the todo notes so the user can review, edit, and paste directly to Slack if he agrees. Do not post to Slack automatically.
+Write the drafted response into the daily note under the relevant channel section. Do not post to Slack automatically. Do not print the full channel summary in the terminal — only surface actionable Slack items (DMs needing reply, @mentions requiring action) in the terminal priority task list.
 
 ---
 
@@ -498,6 +511,14 @@ tags: [daily]
 ## Anytime / Blocked
 - [ ] 🟠 CR-XXXXX — blocked on #1234 #work #computer #high #60m
   - Blocked on: PR#1234
+
+## Slack
+
+### #channel-name
+- summary of relevant activity
+
+### DMs
+- @person — summary
 
 ## Stale waiters
 ⏰ CR-XXXXX — stuck 3 days, last activity: Jun 6
