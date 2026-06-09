@@ -49,6 +49,4 @@ setw -g window-status-current-style fg=green,bg=black,bright
 setw -g monitor-activity on
 set -g visual-activity on
 
-# Use system zsh
-set -g default-command /opt/homebrew/bin/zsh
-set -g default-shell /opt/homebrew/bin/zsh
+set -g default-shell $SHELL
