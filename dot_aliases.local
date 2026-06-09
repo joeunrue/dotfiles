@@ -1,3 +1,6 @@
+# Dotfiles
+alias dotfiles-save='chezmoi re-add ~/.zshrc ~/.zshenv ~/.aliases.local ~/.zshrc.local ~/.gitconfig.local ~/.tmux.conf.local ~/.config/nvim/init.vim && cd ~/.local/share/chezmoi && git add -A && git commit -m'
+
 # Neovim
 alias vim="nvim"
 
