@@ -1,0 +1,13 @@
+*~
+.powrc
+.DS_Store
+.DS_Store?
+.bundle/*
+vendor/ruby/*
+.dropbox
+.envrc
+Icon?
+custom_plan.rb
+zeus.json
+db/schema.rb
+Procfile.dev

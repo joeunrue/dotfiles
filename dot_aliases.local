@@ -1,0 +1,22 @@
+# Neovim
+alias vim="nvim"
+
+# Bundler
+alias be="bundle exec"
+alias bi="bundle install"
+alias bil="bundle install --local"
+alias bu="bundle update"
+alias binit="bundle install && bundle package && echo 'vendor/ruby' >> .gitignore"
+
+# Tmux
+alias tml="tmux list-sessions"
+alias tma="tmux -2 attach -t $1"
+
+# Rake
+alias rake='noglob rake'
+
+# Docker
+alias ld="lazydocker"
+
+# SSH
+alias sshcopy="ssh-copy-id -i ~/.ssh/id_rsa.pub"

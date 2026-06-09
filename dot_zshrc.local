@@ -1,0 +1,11 @@
+# rbenv
+if which rbenv > /dev/null; then eval "$(rbenv init -)"; fi
+
+# pip
+export PATH="$HOME/.local/bin:$PATH"
+
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# Vim
+export EDITOR="/usr/local/bin/vim"

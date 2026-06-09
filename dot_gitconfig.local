@@ -1,0 +1,30 @@
+[user]
+  name = Saxon Unrue
+  email = saxon@unrue.com
+[alias]
+  aa = add --all
+  amend = commit --amend
+  b = branch
+  ci = commit
+  co = checkout
+  dc = diff --cached
+  di = diff
+  dh = diff HEAD
+  dh1 = diff HEAD~1
+  graph = log --decorate --all --oneline --graph
+  la = !git l --all
+  pf = push --force-with-lease
+  prune-stale = !git remote prune origin && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+  st = status
+[branch]
+  autosetuprebase = always
+[color]
+  ui = auto
+[format]
+  pretty = %Cblue%h%Creset %Cgreen[%ar]%Creset (%an) %s
+[log]
+  decorate = short
+[push]
+  default = upstream
+[credential]
+  helper = osxkeychain
