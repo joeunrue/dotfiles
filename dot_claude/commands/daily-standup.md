@@ -7,6 +7,20 @@ description: Build a prioritized daily task list from GitHub, Jira, Slack, Gmail
 
 Build the user's prioritized task list for the day. Run all steps in parallel where possible, then compile into a prioritized Obsidian daily note and a draft standup message.
 
+## Invocation
+
+- **Normal**: `/daily-standup` — looks back 24–48 hours across all sources
+- **Extended lookback**: `/daily-standup look back N days` (or `look back 1 week`, `look back 2 weeks`) — expands all lookback windows proportionally, suppresses staleness warnings, and adds a note at the top of the output explaining the extended window
+
+**When an extended lookback is requested:**
+- GitHub: search PRs updated in the last N days instead of the default 2
+- Jira: expand JQL `updated` filters to `-Nd`
+- Slack: scan channels for the last N days instead of 48 hours
+- Gmail: expand search to last N days instead of 5
+- Obsidian carry-overs: read all daily notes back N days instead of 7
+- **Suppress all staleness warnings** (`⏰` stale waiter flags) — the user was away intentionally, not neglecting tickets
+- Print at the top: `⚠️ Extended lookback: N days — staleness warnings suppressed`
+
 ## Vault configuration
 
 - **Daily notes path**: `~/Documents/Obsidian/Daily/`
