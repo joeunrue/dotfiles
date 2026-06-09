@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chezmoi --version)",
+      "Bash(brew --version)",
+      "Bash(git --version)",
+      "Bash(chezmoi doctor *)",
+      "Bash(chezmoi init *)",
+      "Bash(chezmoi source-path *)",
+      "Bash(chezmoi diff *)",
+      "Bash(chezmoi apply *)",
+      "Bash(grep -v -E '^\\\\.\\\\.$|^\\\\.$')",
+      "Bash(brew install *)",
+      "Bash(gh repo *)",
+      "Bash(nvim +PlugInstall *)",
+      "Bash(nvim *)",
+      "Bash(brew bundle *)",
+      "Bash(git clone *)",
+      "Bash(~/.tmux/plugins/tpm/bin/install_plugins)",
+      "Bash(tmux list-sessions *)",
+      "Bash(tmux send-keys *)",
+      "Bash(tmux capture-pane *)",
+      "Bash(tmux kill-server *)",
+      "Bash(tmux new-session *)",
+      "Bash(tmux show-options *)",
+      "Bash(tmux display-message *)",
+      "Bash(tmux source-file *)",
+      "Bash(git config *)",
+      "Bash(chezmoi re-add *)",
+      "Bash(~/.tmux/plugins/tmux-battery/scripts/battery_percentage.sh *)",
+      "Bash(tmux set *)",
+      "Bash(tmux list-windows *)"
+    ]
+  }
+}
