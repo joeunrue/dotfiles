@@ -1,11 +1,17 @@
 ---
 name: daily-standup
-description: Build a prioritized daily task list from GitHub, Jira, Slack, Gmail, and Calendar. Creates Things todos with GTD tags.
+description: Build a prioritized daily task list from GitHub, Jira, Slack, Gmail, and Calendar. Writes an Obsidian daily note with Tasks-compatible checkboxes.
 ---
 
 # Daily Standup — Priority List
 
-Build the user's prioritized task list for the day. Run all steps in parallel where possible, then compile into a prioritized Things task list and a draft standup message.
+Build the user's prioritized task list for the day. Run all steps in parallel where possible, then compile into a prioritized Obsidian daily note and a draft standup message.
+
+## Vault configuration
+
+- **Daily notes path**: `~/Documents/Obsidian/Daily/`
+- **File format**: `YYYY-MM-DD.md` (e.g. `2026-06-09.md`)
+- **Task format**: `- [ ] EMOJI Title #tag1 #tag2` with indented sub-lines for notes/links
 
 ## Configuration
 
@@ -46,7 +52,7 @@ Check each tool with a minimal call:
 | Jira | Call `mcp__claude_ai_Atlassian_2__atlassianUserInfo` |
 | Slack | Call `mcp__claude_ai_Slack__slack_read_user_profile` with `user_id: "{slack_user_id}"` |
 | Gmail | Call `mcp__claude_ai_Gmail__search_threads` with `query: "in:inbox"` |
-| Things | Call `mcp__things__get_today` |
+| Obsidian vault | Check that `~/Documents/Obsidian/Daily/` exists |
 
 Print a preflight report immediately:
 
@@ -58,7 +64,7 @@ Print a preflight report immediately:
 ✅ Jira — connected
 ✅ Slack — connected
 ✅ Gmail — connected
-✅ Things — connected
+✅ Obsidian vault — ~/Documents/Obsidian/Daily/ found
 ```
 
 If any tool fails, replace ✅ with ❌ and a short reason (e.g. "needs re-auth", "not connected").
@@ -69,7 +75,7 @@ If any tool fails, replace ✅ with ❌ and a short reason (e.g. "needs re-auth"
 ⛔ Standup aborted — fix the failing tools above and re-run.
 ```
 
-Do not proceed to the remaining steps. Things and Gmail failures are non-critical — note them as degraded but continue.
+Do not proceed to the remaining steps. Obsidian vault and Gmail failures are non-critical — note them as degraded but continue.
 
 ---
 
@@ -82,7 +88,7 @@ Do not proceed to the remaining steps. Things and Gmail failures are non-critica
 
 **If Calendar returns an empty events list on a weekday**, do not silently report "no meetings." Flag it explicitly: "⚠️ Calendar returned no events — possible auth issue. Verify manually." An empty result on a weekend is expected; on a weekday it likely means the integration failed silently.
 
-**Things carry-overs**: Call `mcp__things__get_today` and `mcp__things__get_anytime`. Flag any tasks that have been sitting untouched for 3+ days — these either need to be done, rescheduled, or deleted.
+**Obsidian carry-overs**: Read the last 7 daily note files in `~/Documents/Obsidian/Daily/`. Find any `- [ ]` incomplete tasks older than 3 days — these either need to be done today, moved forward, or deleted.
 
 ---
 
@@ -298,12 +304,15 @@ Synthesize everything into a prioritized task list. Use this priority framework:
 
 **Team queue reviews** (the user's team named but not the user personally) → always 🟡 Medium. Group into a single "team review sweep" todo with a checklist. No pre-review needed. Each PR gets its own checklist item in the format `{repo}#{number} — {title} {url}`, ordered with the most integrations-relevant PRs first. Use `checklist_items` in `add_todo` (not plain text in notes) so they render as interactive checkboxes.
 
-For each task, call `mcp__things__add_todo` with:
-- `title` = priority emoji + short description
-- `notes` = context + relevant links (Jira, GitHub PR, Slack thread, email)
-- `when` = `today`
-- `list_title` = `"Work"` — always put work tasks in the Work area
-- `tags` = energy tag + time tag + context tag + `"work"` (see tagging guide below)
+For each task, write a checkbox entry to today's daily note (`~/Documents/Obsidian/Daily/YYYY-MM-DD.md`):
+
+```
+- [ ] EMOJI Title #energy #time #context #work
+  - Note line 1 (Jira link, PR link, etc.)
+  - Note line 2
+```
+
+Blocked/anytime tasks go in an `## Anytime / Blocked` section instead of `## Tasks`. Today's actionable tasks go under `## Tasks`.
 
 One task, one todo. Each discrete action gets its own todo — never combine separate PRs, tickets, or actions into a single todo just because they share a theme or belong to the same epic. If each item could stand alone as something to check off, make it its own todo. Checklist items inside a todo are fine for true sub-steps of a single indivisible action only.
 
@@ -337,21 +346,20 @@ Also add `customfield_10036` and `customfield_10048` to the field list when fetc
 
 **Re-verification must use live data, not existing todo notes**: When an existing todo makes a factual claim (e.g. "0 reviewers assigned", "no approvals", "CI failing"), always re-verify that specific claim against GitHub/Jira directly — do not carry it forward as true just because it was written yesterday. For example, if a todo says "needs reviewers," fetch the PR and check `requested_reviewers` before echoing that claim. Stale todo notes are a known source of false positives. This applies at every step — do not echo any cached classification without verifying the live state first.
 
-**Before creating or updating any todo**, fetch all three:
-- `mcp__things__get_today` — incomplete tasks already scheduled for today
-- `mcp__things__get_upcoming` — tasks scheduled for future dates (just as likely to be duplicates)
-- `mcp__things__get_logbook` with `period: "3d"` and `limit: 20` — recently completed tasks for dedup
+**Before writing anything to the daily note**, read the following files:
+- Today's daily note (`YYYY-MM-DD.md`) — if it exists, scan for `- [ ]` incomplete tasks
+- The last 3 daily notes — scan for `- [x]` completed tasks (logbook equivalent)
 
-For each candidate task, find any match by looking for shared identifiers: PR numbers (e.g. `#1251`), CR numbers (e.g. `CR-55517`), or distinctive keywords in the title/notes. Then apply this logic:
+For each candidate task, find any match by looking for shared identifiers: PR numbers (e.g. `#1251`), CR numbers (e.g. `CR-55517`), or distinctive keywords in the task line. Then apply this logic:
 
-**Match found in today's incomplete list** → do not create a new todo. Instead:
-1. Determine the current classification (Needs work, Approved awaiting QA, Ready to merge, etc.) based on today's live data — not the existing todo's notes.
-2. If the current classification is **Approved, awaiting QA** or **Awaiting product decision** → call `update_todo` to reschedule to `anytime`, regardless of whether there was new activity. the user is not the bottleneck; the todo should not sit on today's list.
-3. Otherwise, check whether there is new activity since the task was created (new PR comments, new reviews, new Jira comments, status changes). If yes, append a timestamped update to the existing todo's notes using `mcp__things__update_todo`. If nothing new, leave it alone.
+**Match found as incomplete (`- [ ]`) in today's note** → do not add a duplicate. Instead:
+1. Determine the current classification based on today's live data — not the existing task's notes.
+2. If the current classification is **Approved, awaiting QA** or **Awaiting product decision** → move the task line to the `## Anytime / Blocked` section by editing the file.
+3. Otherwise, if there is new activity, append a timestamped note as an indented sub-line under the existing task. If nothing new, leave it alone.
 
-**Match found in the logbook (completed)** → the task was already closed. Only create a fresh todo if there is *genuinely new* activity that requires the user's attention — specifically: a new CHANGES_REQUESTED or new inline comment submitted *after* the user's most recent push or re-review request. Do not recreate a todo just because the PR still has an old CHANGES_REQUESTED state that the user has already addressed. If there is no new activity, skip entirely.
+**Match found as completed (`- [x]`) in a recent note** → the task was already closed. Only add a fresh task if there is *genuinely new* activity requiring attention — specifically: a new CHANGES_REQUESTED or new inline comment submitted *after* the user's most recent push. If no new activity, skip entirely.
 
-**No match found** → create a new todo as normal.
+**No match found** → append the new task to today's daily note as normal.
 
 ### Tagging guide
 
@@ -381,7 +389,7 @@ Always include the literal tag `"work"` as well so these show up under the Work 
 15five has no MCP and its API is read-only — submission must be done manually. The goal is to pre-fill the weekly check-in bullets so the user can paste them in and hit submit in under 2 minutes.
 
 **Scan the logbook for this week's work:**
-Call `get_logbook` with `period: "7d"` and `limit: 50` specifically for this step (the Step 0 fetch uses a shorter window for dedup only). Filter to Work area items — exclude personal todos (Home area, Steam, errands, etc.). Read all the completed work items, then **group and summarize by initiative or theme** — do NOT list individual todos. Aim for 3–5 broad bullets that capture what was worked on at a high level. Examples of the right grain:
+Read the last 7 daily note files in `~/Documents/Obsidian/Daily/`. Collect all `- [x]` completed tasks tagged `#work`. Read all the completed work items, then **group and summarize by initiative or theme** — do NOT list individual tasks. Aim for 3–5 broad bullets that capture what was worked on at a high level. Examples of the right grain:
 
 - "Kicked off Nutshell CRM integration — inti model config, Nutshell feature in monolith, and looky frontend all in flight"
 - "Cancel/reschedule appointments feature for Calendly + Google Calendar: proto changes and DB migrations merged, inti and looky tickets in progress"
@@ -393,14 +401,12 @@ Do not write a bullet per PR or per ticket. If 4 PRs were reviewed, that's one "
 **Pull next week's plans:**
 Look at the highest-priority in-flight items from Steps 2 and 3 (the user's open PRs, active Jira tickets). Write 3–5 broad plan bullets in the same style — what initiatives or themes the user plans to push forward next week.
 
-**Create the Things todo — always, no dedup:**
-Unlike other todos, **do not deduplicate this one against existing incomplete todos**. Create a fresh todo every Friday regardless of whether a previous uncompleted 15five todo exists — the user explicitly wants duplicates to accumulate until submitted.
+**Add to today's daily note — always, no dedup:**
+Unlike other tasks, **do not deduplicate this one**. Add a fresh task every Friday regardless of whether a previous uncompleted 15five task exists in a recent note — the user explicitly wants duplicates to accumulate until submitted.
 
-Create with:
-- Title: `📝 Submit 15five weekly review`
-- `when: today`
-- `tags: ["Computer", "High", "15m"]`
-- Notes structured as:
+Append to today's daily note:
+- Task: `- [ ] 📝 Submit 15five weekly review #computer #high #15m #work`
+- Followed by the pre-filled bullets as indented sub-lines structured as:
 
 ```
 ## This week
@@ -442,11 +448,55 @@ Print this at the end of the summary under a "Standup draft" header. Do not post
 
 ## Output format
 
+### Terminal output
 Print the summary in this order:
 1. **Today's schedule** — meetings and focus blocks
 2. **Priority task list** — grouped by 🔴 / 🟠 / 🟡 / ⚪
 3. **Stale waiters** — inactionable items with no activity for >2 days; format as `⏰ CR-XXXXX — {title} (stuck N days, last activity: {date})`. Omit section if nothing is stale.
-4. **Carry-over check** — any old Things tasks to reconsider
+4. **Carry-over check** — any old Obsidian tasks to reconsider
 5. **Standup draft** — ready to copy-paste
 
 Keep it scannable. This is a morning brief, not a report.
+
+### Daily note written to `~/Documents/Obsidian/Daily/YYYY-MM-DD.md`
+
+If the file doesn't exist, create it with this structure:
+
+```markdown
+---
+date: YYYY-MM-DD
+tags: [daily]
+---
+
+# YYYY-MM-DD
+
+## Schedule
+- HH:MM — Event name
+(one line per meeting)
+
+## Tasks
+- [ ] 🟢 Title #work #computer #low #5m
+  - Jira: https://...
+  - PR: https://...
+- [ ] 🔴 Title #work #computer #high #30m
+  - context note
+
+## Anytime / Blocked
+- [ ] 🟠 CR-XXXXX — blocked on #1234 #work #computer #high #60m
+  - Blocked on: PR#1234
+
+## Stale waiters
+⏰ CR-XXXXX — stuck 3 days, last activity: Jun 6
+
+## Standup draft
+**Yesterday:**
+- bullet
+
+**Today:**
+- bullet
+
+**Blockers:**
+- none
+```
+
+If the file already exists (re-run), append new tasks under the existing sections rather than overwriting.
