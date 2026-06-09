@@ -41,12 +41,14 @@ bind p paste-buffer
 bind-key -T copy-mode-vi 'v' send-keys -X begin-selection
 bind-key -T copy-mode-vi 'y' send-keys -X copy-selection-and-cancel
 
-# Status bar
-set -g status-style fg=white,bg=black
-set -g message-style fg=white,bg=black,bright
-setw -g window-status-style fg=cyan,bg=black,dim
-setw -g window-status-current-style fg=green,bg=black,bright
-setw -g monitor-activity on
-set -g visual-activity on
+set -g @catppuccin_flavor 'mocha'
+
+run ~/.tmux/plugins/tmux-battery/battery.tmux
+run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux
+
+set -g status-left-length 100
+set -g status-right-length 100
+set -g status-left "#{E:@catppuccin_status_session}"
+set -g status-right "#{E:@catppuccin_status_battery}#{E:@catppuccin_status_date_time}"
 
 set -g default-shell $SHELL

@@ -1,4 +1,6 @@
 brew "chezmoi"
 brew "gh"
+brew "gnupg"
 brew "neovim"
 brew "tmux"
+cask "font-jetbrains-mono-nerd-font"
