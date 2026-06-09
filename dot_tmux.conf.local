@@ -42,13 +42,15 @@ bind-key -T copy-mode-vi 'v' send-keys -X begin-selection
 bind-key -T copy-mode-vi 'y' send-keys -X copy-selection-and-cancel
 
 set -g @catppuccin_flavor 'mocha'
+set -g @catppuccin_battery_icon "#(~/.tmux/plugins/tmux-battery/scripts/battery_icon.sh) "
+set -g @catppuccin_battery_text " #(~/.tmux/plugins/tmux-battery/scripts/battery_percentage.sh)"
 
-run ~/.tmux/plugins/tmux-battery/battery.tmux
 run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux
 
 set -g status-left-length 100
 set -g status-right-length 100
 set -g status-left "#{E:@catppuccin_status_session}"
 set -g status-right "#{E:@catppuccin_status_battery}#{E:@catppuccin_status_date_time}"
+
 
 set -g default-shell $SHELL
