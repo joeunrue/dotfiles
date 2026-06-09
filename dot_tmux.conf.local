@@ -44,6 +44,9 @@ bind-key -T copy-mode-vi 'y' send-keys -X copy-selection-and-cancel
 set -g @catppuccin_flavor 'mocha'
 run ~/.config/tmux/plugins/catppuccin/tmux/catppuccin.tmux
 
+set -g window-status-format "#[fg=#11111b,bg=#{@thm_overlay_2}] #I #[fg=#{@thm_fg},bg=#{@thm_surface_0}] #W "
+set -g window-status-current-format "#[fg=#11111b,bg=#{@thm_mauve}] #I #[fg=#{@thm_fg},bg=#{@thm_surface_1}] #W "
+
 set -g status-left-length 100
 set -g status-right-length 100
 set -gF status-style "bg=#{@thm_mantle},fg=#{@thm_fg}"
@@ -51,4 +54,5 @@ set -g status-left "#[fg=#{@thm_green},bold] #S #[default] "
 set -g status-right "#[fg=#{@thm_lavender}] #(~/.tmux/plugins/tmux-battery/scripts/battery_percentage.sh)  #[fg=#{@thm_sapphire}]%a %b %d  %H:%M #[default]"
 
 
+set -g allow-rename off
 set -g default-shell $SHELL
